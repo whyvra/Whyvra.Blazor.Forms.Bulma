@@ -1,0 +1,38 @@
+@typeparam TModel
+@inherits BulmaComponentBase<TModel>
+
+<div class="field">
+    <label for="@InternalName">@DisplayName</label>
+    <p class="control @(Icon != null ? "has-icons-left" : "")">
+        <input type="number" id="@InternalName" class="input @(FormState == FormState.Read ? "is-static" : "")"
+            placeholder="@Placeholder" value="@(GetData(FormModel.DataModel))" 
+            readonly="@(FormState == FormState.Read)"
+            @onchange="HandleChange"
+            @onfocusout="HandleValidation" />
+        @if (Icon != null)
+        {
+            <span class="icon is-left @IconSize">
+                <i class="@Icon"></i>
+            </span>
+        }
+        <BulmaValidationMessage Messages="@ValidationMessages"></BulmaValidationMessage>
+    </p>
+</div>
+
+@code
+{
+    private void HandleChange(ChangeEventArgs e)
+    {
+        var value = e.Value.ToString();
+        var number = Convert.ToInt32(value);
+        SetData(FormModel.DataModel, number);
+    }
+
+    private void HandleValidation()
+    {
+        if (GetValidationResult == null) return;
+
+        var result = GetValidationResult();
+        ValidationMessages = result.ValidationMessages.ContainsKey(ValidationPath) ? result.ValidationMessages[ValidationPath] : Enumerable.Empty<string>();
+    }
+}

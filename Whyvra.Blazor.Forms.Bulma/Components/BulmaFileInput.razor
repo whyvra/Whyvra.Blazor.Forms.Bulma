@@ -1,0 +1,51 @@
+@typeparam TModel
+@inherits BulmaComponentBase<TModel>
+
+<div class="field">
+    <label for="@InternalName">@DisplayName</label>
+    <p class="control">
+        <div class="file has-name @CssModifier">
+            <label class="file-label">
+                <InputFile class="file-input" name="@InternalName" accept="@Accept" OnChange="HandleUpload"></InputFile>
+                <span class="file-cta">
+                    <span class="file-icon @IconSize">
+                        <i class="@Icon"></i>
+                    </span>
+                    <span class="file-label">
+                        @ButtonText
+                    </span>
+                </span>
+                <span class="file-name">
+                    @(_fileName ?? @Placeholder)
+                </span>
+            </label>
+        </div>
+        <BulmaValidationMessage Messages="@ValidationMessages"></BulmaValidationMessage>
+    </p>
+</div>
+
+@code
+{
+    private string _fileName;
+
+    [Parameter]
+    public string Accept { get; set; }
+
+    [Parameter]
+    public string ButtonText { get; set; } = "Choose a file...";
+
+    private void HandleUpload(InputFileChangeEventArgs e)
+    {
+        if (e.FileCount > 0)
+        {
+            _fileName = e.File.Name;
+            var formFile = new BlazorFormFile(e.File);
+            SetData(FormModel.DataModel, formFile);
+        }
+        else
+        {
+            _fileName = null;
+            SetData(FormModel.DataModel, null);
+        }
+    }
+}

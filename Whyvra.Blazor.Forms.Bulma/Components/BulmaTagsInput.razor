@@ -1,0 +1,90 @@
+@typeparam TModel
+@inherits BulmaComponentBase<TModel>
+
+<div class="field">
+    <label for="@InternalName">@DisplayName</label>
+    <div class="control" @onfocusout="HandleValidation">
+        @if (FormState == FormState.Read)
+        {
+            <div class="tags">
+                @foreach (var tag in _data)
+                {
+                    <span class="tag @TagCss">@tag</span>
+                }
+                @if (!_data.Any())
+                {
+                    <span class="tag @TagCss">@EmptyValue</span>
+                }
+            </div>
+        }
+        else
+        {
+            <div class="tags-input">
+                @foreach (var tag in _data)
+                {
+                    <span class="tag @TagCss">
+                        @tag
+                        <button class="delete" @onclick:preventDefault @onclick="@(() => RemoveTag(tag))"></button>
+                    </span>
+                }
+                <input type="text" class="input" id="@InternalName" placeholder="@Placeholder" value=@_value @oninput="@(e => { _value = e.Value.ToString(); Process(); })">
+            </div>
+            
+        }
+        <BulmaValidationMessage Messages="@ValidationMessages"></BulmaValidationMessage>
+    </div>
+</div>
+
+@code
+{
+    private IEnumerable<string> _data;
+    private string _value = null;
+
+    [Parameter]
+    public string EmptyValue { get; set; }
+
+    [Parameter]
+    public string TagCss { get; set; }
+
+    protected override void OnInitialized()
+    {
+        _data = GetData(FormModel.DataModel) as IEnumerable<string> ?? Enumerable.Empty<string>();
+    }
+
+    private void HandleValidation()
+    {
+        if (GetValidationResult == null) return;
+
+        var result = GetValidationResult();
+        ValidationMessages = result.ValidationMessages.ContainsKey(ValidationPath) ? result.ValidationMessages[ValidationPath] : Enumerable.Empty<string>();
+    }
+
+    private void Process()
+    {
+        // Get typed text
+        var text = _value;
+        if (string.IsNullOrWhiteSpace(text)) return;
+
+        var lastChar = text[text.Length - 1];
+
+        if (lastChar == ',')
+        {
+            // Add new tag to list
+            var data = _data.ToList();
+            data.Add(text.Substring(0, text.Length - 1));
+
+            // Empty text field
+            _value = string.Empty;
+
+            // Update the public list and trigger callback
+            _data = data;
+            SetData(FormModel.DataModel, data);
+        }
+    }
+
+    private void RemoveTag(string tag)
+    {
+        _data = _data.Where(x => !x.Equals(tag));
+        SetData(FormModel.DataModel, _data);
+    }
+}

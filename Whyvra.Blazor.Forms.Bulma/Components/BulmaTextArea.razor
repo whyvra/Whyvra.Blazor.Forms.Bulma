@@ -1,0 +1,39 @@
+@typeparam TModel
+@inherits BulmaComponentBase<TModel>
+
+<div class="field">
+    <label for="@InternalName">@DisplayName</label>
+    <div class="control">
+        <textarea id="@InternalName" class="textarea has-fixed-size @(FormState == FormState.Read ? "is-static" : "")"
+            placeholder="@Placeholder" value="@(GetData(FormModel.DataModel))"
+            cols="@Columns" rows="@Rows"
+            readonly="@(FormState == FormState.Read)"
+            @onchange="HandleChange"
+            @onfocusout="HandleValidation">
+        </textarea>
+        <BulmaValidationMessage Messages="@ValidationMessages" />
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public int? Columns { get; set; }
+
+    [Parameter]
+    public int? Rows { get; set; }
+
+    private void HandleChange(ChangeEventArgs e)
+    {
+        var value = e.Value.ToString();
+        SetData(FormModel.DataModel, value);
+    }
+
+    private void HandleValidation()
+    {
+        if (GetValidationResult == null) return;
+
+        var result = GetValidationResult();
+        ValidationMessages = result.ValidationMessages.ContainsKey(ValidationPath) ? result.ValidationMessages[ValidationPath] : Enumerable.Empty<string>();
+    }
+}

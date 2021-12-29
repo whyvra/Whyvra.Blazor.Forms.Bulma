@@ -1,0 +1,39 @@
+@typeparam TModel
+@inherits WhyvraComponentBase<TModel>
+@implements IChangeNotifier
+
+<div class="field">
+    <div class="control">
+        <label>
+            <input type="checkbox" class="checkbox" checked="@GetData(FormModel.DataModel)"
+                @onchange="HandleCheckbox" >
+            @DisplayName 
+        </label>
+    </div>
+</div>
+
+@code
+{
+    [Parameter]
+    public Func<IDictionary<string, object>, bool> ElementsToHide { get; set; }
+
+    [Parameter]
+    public Action FormHasChanged { get; set; }
+
+    private void HandleCheckbox(ChangeEventArgs e)
+    {
+        // Update model with value
+        var isChecked = (bool) e.Value;
+        SetData(FormModel.DataModel, isChecked);
+
+        if (ElementsToHide == null)  return;
+
+        // Hide selected fields
+        FormModel.Components
+            .Where(x => typeof(WhyvraComponentBase<TModel>).IsAssignableFrom(x.Type) && ElementsToHide(x.Parameters))
+            .ToList()
+            .ForEach(x => x.IsVisible = !isChecked);
+
+        FormHasChanged();
+    }
+}
