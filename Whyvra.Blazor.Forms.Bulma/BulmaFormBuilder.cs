@@ -63,6 +63,7 @@ namespace Whyvra.Blazor.Forms.Bulma
 
             var name = CurrentComponent.Parameters[nameof(WhyvraComponentBase<TModel>.DisplayName)] as string;
             CurrentComponent.Parameters[nameof(BulmaComponentBase<TModel>.Placeholder)] = name;
+            if (!string.IsNullOrWhiteSpace(tagCss)) CurrentComponent.Parameters[nameof(BulmaTagsInput<TModel>.TagCss)] = tagCss;
 
             return this;
         }

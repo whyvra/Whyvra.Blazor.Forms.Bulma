@@ -6,7 +6,7 @@
     <div class="control" @onfocusout="HandleValidation">
         @if (FormState == FormState.Read)
         {
-            <div class="tags">
+            <div class="tags @CssModifier">
                 @foreach (var tag in _data)
                 {
                     <span class="tag @TagCss">@tag</span>
@@ -19,7 +19,7 @@
         }
         else
         {
-            <div class="tags-input">
+            <div class="tags-input @CssModifier">
                 @foreach (var tag in _data)
                 {
                     <span class="tag @TagCss">
